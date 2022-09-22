@@ -24,9 +24,24 @@ Within the `package.json` there should be a section like:
      "super-tables-sandbox": "github.com:appsfortableau/supertables#4.0.0"
   }
 ```
-
 > The `super-tables-free` relates to the `asset(s)` found for release `4.0.0` in the `appsfortableau/supertables` repository.  
 > Name of the zip that will be searched for: `super-tables-free-4.0.0.zip`.
+
+
+Following in your github action:
+
+```yaml
+uses: appsfortableau/github-action-release-downloader
+with:
+  extract: true
+  outdir: extensions
+```
+or without extracting and download zip's too the extensions folder:
+```yaml
+uses: appsfortableau/github-action-release-downloader
+with:
+  outdir: extensions
+```
 
 ## Usefull links
 
