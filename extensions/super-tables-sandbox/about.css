@@ -1,0 +1,44 @@
+.appsfortableau__logo {
+  position: absolute;
+  right: 25px;
+  top: 25px;
+}
+.appsfortableau h1,
+.appsfortableau h2,
+.appsfortableau h3,
+.appsfortableau h4,
+.appsfortableau h5,
+.appsfortableau h6 {
+  margin-bottom: 1rem;
+  font-family: inherit;
+  font-weight: 500;
+  line-height: 1.2;
+  color: inherit;
+}
+
+.appsfortableau h1 {
+  font-size: 2rem;
+}
+
+.appsfortableau h2 {
+  margin-top: 20px;
+  font-size: 1.5rem;
+}
+
+.appsfortableau h3 {
+  margin: 1em 0px 0px 0px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #212529;
+}
+
+.appsfortableau p {
+  color: rgba(0, 0, 0, 0.8);
+  cursor: default;
+  font-family: Benton Sans, Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  line-height: 20px;
+  position: relative;
+  user-select: none;
+}
