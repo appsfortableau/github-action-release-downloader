@@ -31,14 +31,14 @@ Within the `package.json` there should be a section like:
 Following in your github action:
 
 ```yaml
-uses: appsfortableau/github-action-release-downloader
+uses: appsfortableau/github-action-release-downloader@v1
 with:
   extract: true
   outdir: extensions
 ```
 or without extracting and download zip's too the extensions folder:
 ```yaml
-uses: appsfortableau/github-action-release-downloader
+uses: appsfortableau/github-action-release-downloader@v1
 with:
   outdir: extensions
 ```
