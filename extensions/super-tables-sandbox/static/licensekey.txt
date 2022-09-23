@@ -1,1 +1,0 @@
-CompanyName=Infotopics AfT B.V,LicensedApplication=Super Tables,LicenseType=SingleApplication,LicensedConcurrentDeveloperCount=1,LicensedProductionInstancesCount=60,AssetReference=AG-023298,ExpiryDate=23_January_2023_[v2]_MTY3NDQzMjAwMDAwMA==01815d5a51c0ee268976f6ce4f1a930b
