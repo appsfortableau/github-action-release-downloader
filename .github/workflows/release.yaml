@@ -1,3 +1,5 @@
+name: Release downloader
+
 on:
   workflow_dispatch:
     inputs:
