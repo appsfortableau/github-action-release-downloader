@@ -1,5 +1,3 @@
-name: 'Release version of the Github action'
-
 on:
   workflow_dispatch:
     inputs:
