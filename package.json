@@ -1,9 +1,9 @@
 {
-  "name": "appsfortableau",
+  "name": "gh-action-release-downloader",
   "version": "1.6-alpha",
   "description": "Github action for our releases strategy",
   "main": "src/main.ts",
-  "repository": "https://github.com/appsfortableau/github-action-releaser",
+  "repository": "https://github.com/appsfortableau/github-action-release-downloader",
   "author": "Yoram",
   "license": "MIT",
   "private": true,
@@ -29,7 +29,7 @@
     "node-fetch": "2"
   },
   "releases": {
-     "super-tables-free": "github.com:appsfortableau/supertables#4.0.0",
-     "super-tables-sandbox": "github.com:appsfortableau/supertables#4.0.0"
+    "super-tables-free": "github.com:appsfortableau/supertables#4.0.0",
+    "super-tables-sandbox": "github.com:appsfortableau/supertables#4.0.0"
   }
 }
