@@ -4,6 +4,7 @@ description: >-
   Github Action for creating/updating Github Releases for Infotopics | Apps for
   Tableau
 author: infotopics | Apps for Tableau
+
 inputs:
   outdir:
     description: Target directory
@@ -17,6 +18,8 @@ inputs:
       Authorized secret GitHub Personal Access Token. Defaults to the
       `github.token`.
     required: false
+    default: '${{ github.token }}'
+
 
 env:
   GITHUB_TOKEN: As provided by Github Actions
