@@ -19,8 +19,9 @@ export interface ReleaseAsset {
 }
 
 export function parseConfig(env: Env): Config {
+  console.log(env, getInput('token', { required: true }).split(''))
   return {
-    token: getInput('token') || env.GITHUB_TOKEN || '',
+    token: getInput('token', { required: true }),
     outdir: getInput('outdir') || '.',
     extract: getBooleanInput('extract') || false,
   };

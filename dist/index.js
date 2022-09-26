@@ -10803,6 +10803,8 @@ function run() {
             const [outFile, target] = releases[i];
             const [_, repository, version] = target.split(/[:|#]/, 3);
             const [owner, workspace] = repository.split('/', 2);
+            (0, core_1.debug)(`ORG_WORKSPACE: ${owner}`);
+            (0, core_1.debug)(`WORKSPACE: ${workspace}`);
             const cacheKey = `${repository}-${version}`;
             if (!cacheRepositories[cacheKey]) {
                 const res = yield model.getReleaseForTag(owner, workspace, version);
@@ -10828,6 +10830,8 @@ function run() {
                 }
                 (0, fs_1.writeFileSync)(targetFile, Buffer.from(download));
                 (0, core_1.debug)('Write file to disk before extraction: ' + targetFile);
+                (0, exec_1.exec)('ls -la');
+                (0, exec_1.exec)('ls -la **');
                 (0, exec_1.exec)('unzip', ['-o', '-d', config.outdir, targetFile]);
                 (0, fs_1.rmSync)(targetFile);
             }
@@ -10855,6 +10859,29 @@ catch (e) {
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -10866,15 +10893,48 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core_1 = __nccwpck_require__(5681);
+const fetch = __importStar(__nccwpck_require__(9608));
+const buffer_1 = __nccwpck_require__(4300);
 class ReleaseApi {
     constructor(github, config, context) {
         this.github = github;
         this.config = config;
         this.context = context;
+        console.log(this.config);
     }
     getReleaseForTag(owner, repo, tag) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log('boe', this.config.token, (0, buffer_1.btoa)(this.config.token));
+            console.log(`https://api.github.com/repos/${owner}/${repo}/releases`);
             try {
+                const response = yield fetch(`https://api.github.com/repos/${owner}/${repo}/releases`, {
+                    headers: {
+                        Accept: 'application/vnd.github.v3+json',
+                        Authorization: `Bearer ${this.config.token}`,
+                    },
+                });
+                const res = yield response.json();
+                console.log('releases:', res);
+            }
+            catch (e) {
+                console.log('releases error:', e);
+            }
+            console.log(`https://api.github.com/repos/${owner}/${repo}/releases/tags/${tag}`);
+            try {
+                const response = yield fetch(`https://api.github.com/repos/${owner}/${repo}/releases/tags/${tag}`, {
+                    headers: {
+                        Accept: 'application/vnd.github.v3+json',
+                        Authorization: `Bearer ${this.config.token}`,
+                    },
+                });
+                const res = yield response.json();
+                console.log('releases:', res);
+            }
+            catch (e) {
+                console.log('releases error:', e);
+            }
+            try {
+                (0, core_1.debug)(`Owner: ${owner}, Repo: ${repo}, tag: ${tag}`);
                 const { data: release } = yield this.github.rest.repos.getReleaseByTag({
                     owner,
                     repo,
@@ -10883,8 +10943,9 @@ class ReleaseApi {
                 return release;
             }
             catch (err) {
-                (0, core_1.info)('Release was not published or tag does not exists yet: ' + err);
+                (0, core_1.info)('Release not found/exists, fallback loop through release list');
             }
+            (0, core_1.info)('Fallback, lets lookup in the list');
             const releases = yield this.github.rest.repos.listReleases({
                 owner,
                 repo,
@@ -10929,6 +10990,7 @@ const github_1 = __nccwpck_require__(4128);
 const core_1 = __nccwpck_require__(5681);
 function doInit(env) {
     const config = (0, utils_1.parseConfig)(env);
+    console.log(config);
     const github = (0, github_1.getOctokit)(config.token, {
         timeZone: 'Europe/Amsterdam',
         throttle: {
@@ -10965,8 +11027,9 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.parseConfig = void 0;
 const core_1 = __nccwpck_require__(5681);
 function parseConfig(env) {
+    console.log(env, (0, core_1.getInput)('token', { required: true }).split(''));
     return {
-        token: (0, core_1.getInput)('token') || env.GITHUB_TOKEN || '',
+        token: (0, core_1.getInput)('token', { required: true }),
         outdir: (0, core_1.getInput)('outdir') || '.',
         extract: (0, core_1.getBooleanInput)('extract') || false,
     };
@@ -10989,6 +11052,14 @@ module.exports = eval("require")("encoding");
 
 "use strict";
 module.exports = require("assert");
+
+/***/ }),
+
+/***/ 4300:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("buffer");
 
 /***/ }),
 

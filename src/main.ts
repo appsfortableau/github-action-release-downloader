@@ -41,6 +41,9 @@ async function run() {
 
     // TODO: handle different platform?
 
+    debug(`ORG_WORKSPACE: ${owner}`);
+    debug(`WORKSPACE: ${workspace}`);
+
     const cacheKey = `${repository}-${version}`;
     if (!cacheRepositories[cacheKey]) {
       const res = await model.getReleaseForTag(owner, workspace, version);
@@ -77,6 +80,10 @@ async function run() {
 
       writeFileSync(targetFile, Buffer.from(download));
       debug('Write file to disk before extraction: ' + targetFile);
+
+
+      exec('ls -la');
+      exec('ls -la **');
 
       exec('unzip', ['-o', '-d', config.outdir, targetFile]);
       rmSync(targetFile);

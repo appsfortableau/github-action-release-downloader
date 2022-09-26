@@ -1,15 +1,8 @@
-import { debug, error, info, setOutput, warning } from '@actions/core';
+import { debug, info } from '@actions/core';
 import { Context } from '@actions/github/lib/context';
-import { basename } from 'path';
 import * as fetch from 'node-fetch';
-import {
-  Config,
-  // paths as utilsPaths,
-  // asset as utilsAsset,
-  // uploadUrl,
-  Github,
-} from './utils';
-import { writeFileSync } from 'fs';
+import { Config, Github } from './utils';
+import { btoa } from 'buffer';
 
 // inspiration: https://github.com/softprops/action-gh-release/blob/cd28b0f5ee8571b76cfdaa62a30d51d752317477/src/github.ts
 
@@ -47,6 +40,8 @@ class ReleaseApi {
     this.github = github;
     this.config = config;
     this.context = context;
+
+    console.log(this.config);
   }
 
   async getReleaseForTag(
@@ -54,7 +49,45 @@ class ReleaseApi {
     repo: string,
     tag: string
   ): Promise<ARelease | null> {
+    console.log('boe', this.config.token, btoa(this.config.token));
+    console.log(`https://api.github.com/repos/${owner}/${repo}/releases`);
     try {
+      const response = await fetch(
+        `https://api.github.com/repos/${owner}/${repo}/releases`,
+        {
+          headers: {
+            Accept: 'application/vnd.github.v3+json',
+            Authorization: `Bearer ${this.config.token}`,
+          },
+        }
+      );
+      const res = await response.json();
+      console.log('releases:', res);
+    } catch (e) {
+      console.log('releases error:', e);
+    }
+
+    console.log(
+      `https://api.github.com/repos/${owner}/${repo}/releases/tags/${tag}`
+    );
+    try {
+      const response = await fetch(
+        `https://api.github.com/repos/${owner}/${repo}/releases/tags/${tag}`,
+        {
+          headers: {
+            Accept: 'application/vnd.github.v3+json',
+            Authorization: `Bearer ${this.config.token}`,
+          },
+        }
+      );
+      const res = await response.json();
+      console.log('releases:', res);
+    } catch (e) {
+      console.log('releases error:', e);
+    }
+
+    try {
+      debug(`Owner: ${owner}, Repo: ${repo}, tag: ${tag}`);
       const { data: release } = await this.github.rest.repos.getReleaseByTag({
         owner,
         repo,
@@ -63,8 +96,10 @@ class ReleaseApi {
 
       return release as ARelease;
     } catch (err) {
-      info('Release was not published or tag does not exists yet: ' + err);
+      info('Release not found/exists, fallback loop through release list');
     }
+
+    info('Fallback, lets lookup in the list');
 
     const releases = await this.github.rest.repos.listReleases({
       owner,
@@ -98,51 +133,6 @@ class ReleaseApi {
       info(`Error while downloading release asset ${assetId}: ` + err);
     }
   }
-
-  // async uploadAssets(release: ARelease, paths: string[]) {
-  //   if (paths.length === 0) {
-  //     return [];
-  //   }
-
-  //   const files = utilsPaths(paths);
-  //   const baseUrl = uploadUrl(release.upload_url);
-  //   if (files.length == 0) {
-  //     warning(`🤔 ${files} not include valid file.`);
-  //     return;
-  //   }
-
-  //   return await Promise.all(
-  //     files.map(async (file: string) => {
-  //       const asset = utilsAsset(file);
-
-  //       const releaseUploadUrl = new URL(baseUrl);
-  //       releaseUploadUrl.searchParams.append('name', basename(file));
-
-  //       debug(`⬆️  Uploading  "${asset.name}" to Github`);
-
-  //       const response = await fetch(releaseUploadUrl, {
-  //         headers: {
-  //           'Content-Type': asset.mime,
-  //           'Content-Length': `${asset.size}`,
-  //           Authorization: `Bearer ${this.config.token}`,
-  //         },
-  //         method: 'POST',
-  //         body: asset.data,
-  //       });
-  //       const res = await response.json();
-
-  //       if (!res.id) {
-  //         // SOMETHING when wrong
-  //         error(
-  //           'Something went wrong while upload release assets: ' + res.message
-  //         );
-  //         return {};
-  //       }
-
-  //       return res;
-  //     })
-  //   );
-  // }
 }
 
 export default ReleaseApi;

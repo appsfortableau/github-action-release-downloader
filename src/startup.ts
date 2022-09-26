@@ -10,6 +10,7 @@ export function doInit(env: Env): {
   context: Context;
 } {
   const config = parseConfig(env);
+  console.log(config);
   const github = getOctokit(config.token, {
     timeZone: 'Europe/Amsterdam',
     throttle: {
