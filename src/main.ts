@@ -51,7 +51,7 @@ async function run() {
     const targetFile = `${outFile}-${version}.zip`;
 
     let asset: ReleaseAsset | null = null;
-    for(let x = 0; x < release?.assets.length; x++) {
+    for (let x = 0; x < release?.assets.length; x++) {
       if (release.assets[x].name === targetFile) {
         asset = release.assets[x] as ReleaseAsset;
         break;
@@ -63,16 +63,20 @@ async function run() {
       continue;
     }
 
-    const download = await model.downloadRelease(owner, workspace, asset.id) as ArrayBufferLike;
+    const download = (await model.downloadRelease(
+      owner,
+      workspace,
+      asset.id
+    )) as ArrayBufferLike;
 
     if (config.extract) {
       // make dir if not exists and its a custom target
       if (config.outdir !== '.') {
-        mkdirSync(config.outdir, { recursive: true })
+        mkdirSync(config.outdir, { recursive: true });
       }
 
-      writeFileSync(targetFile, Buffer.from(download))
-      debug('Write file to disk before extraction: '+ targetFile);
+      writeFileSync(targetFile, Buffer.from(download));
+      debug('Write file to disk before extraction: ' + targetFile);
 
       exec('unzip', ['-o', '-d', config.outdir, targetFile]);
       rmSync(targetFile);
@@ -81,12 +85,18 @@ async function run() {
     else {
       debug('Create `outdir` if not exists');
       // make dir if not exists
-      mkdirSync(config.outdir, { recursive: true })
+      mkdirSync(config.outdir, { recursive: true });
 
-      writeFileSync(`${config.outdir}/${targetFile}`, Buffer.from(download))
-      debug('Wrote file to location on disk: '+ `${config.outdir}/${targetFile}`);
+      writeFileSync(`${config.outdir}/${targetFile}`, Buffer.from(download));
+      debug(
+        'Wrote file to location on disk: ' + `${config.outdir}/${targetFile}`
+      );
     }
   }
 }
 
-run();
+try {
+  run();
+} catch (e) {
+  console.log('error', e);
+}

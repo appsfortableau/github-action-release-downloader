@@ -10821,7 +10821,7 @@ function run() {
                 (0, core_1.warning)(`No file found for: ${targetFile} in "${repository}"`);
                 continue;
             }
-            const download = yield model.downloadRelease(owner, workspace, asset.id);
+            const download = (yield model.downloadRelease(owner, workspace, asset.id));
             if (config.extract) {
                 if (config.outdir !== '.') {
                     (0, fs_1.mkdirSync)(config.outdir, { recursive: true });
@@ -10840,7 +10840,12 @@ function run() {
         }
     });
 }
-run();
+try {
+    run();
+}
+catch (e) {
+    console.log('error', e);
+}
 
 
 /***/ }),
