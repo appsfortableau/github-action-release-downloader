@@ -10773,16 +10773,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const process_1 = __nccwpck_require__(7282);
 const exec_1 = __nccwpck_require__(5082);
 const fs_1 = __nccwpck_require__(7147);
 const core_1 = __nccwpck_require__(5681);
 const startup_1 = __nccwpck_require__(7713);
 const release_1 = __importDefault(__nccwpck_require__(9530));
+const path_1 = __nccwpck_require__(1017);
 function run() {
     var _a, _b, _c, _d;
     return __awaiter(this, void 0, void 0, function* () {
-        const { context, github, config } = (0, startup_1.doInit)(process_1.env);
+        const { context, github, config } = (0, startup_1.doInit)();
         if (!((_b = (_a = context.payload) === null || _a === void 0 ? void 0 : _a.repository) === null || _b === void 0 ? void 0 : _b.full_name)) {
             (0, core_1.error)('Action repository information not found');
             return;
@@ -10828,11 +10828,15 @@ function run() {
                 if (config.outdir !== '.') {
                     (0, fs_1.mkdirSync)(config.outdir, { recursive: true });
                 }
-                (0, fs_1.writeFileSync)(targetFile, Buffer.from(download));
-                (0, core_1.debug)('Write file to disk before extraction: ' + targetFile);
-                (0, exec_1.exec)('ls -la');
-                (0, exec_1.exec)('ls -la **');
-                (0, exec_1.exec)('unzip', ['-o', '-d', config.outdir, targetFile]);
+                let cwd = process.cwd();
+                (0, core_1.debug)(`CWD: ${cwd}`);
+                (0, fs_1.writeFileSync)((0, path_1.join)(cwd, targetFile), Buffer.from(download));
+                (0, core_1.debug)('Write file to disk before extraction: ' + (0, path_1.join)(cwd, targetFile));
+                let unzipOpts = ['-o', (0, path_1.join)(cwd, targetFile)];
+                if (config.outdir !== '.') {
+                    unzipOpts = ['-o', '-d', config.outdir, (0, path_1.join)(cwd, targetFile)];
+                }
+                yield (0, exec_1.exec)('unzip', unzipOpts);
                 (0, fs_1.rmSync)(targetFile);
             }
             else {
@@ -10844,12 +10848,7 @@ function run() {
         }
     });
 }
-try {
-    run();
-}
-catch (e) {
-    console.log('error', e);
-}
+run();
 
 
 /***/ }),
@@ -10859,29 +10858,6 @@ catch (e) {
 
 "use strict";
 
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -10893,46 +10869,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core_1 = __nccwpck_require__(5681);
-const fetch = __importStar(__nccwpck_require__(9608));
-const buffer_1 = __nccwpck_require__(4300);
 class ReleaseApi {
     constructor(github, config, context) {
         this.github = github;
         this.config = config;
         this.context = context;
-        console.log(this.config);
     }
     getReleaseForTag(owner, repo, tag) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log('boe', this.config.token, (0, buffer_1.btoa)(this.config.token));
-            console.log(`https://api.github.com/repos/${owner}/${repo}/releases`);
-            try {
-                const response = yield fetch(`https://api.github.com/repos/${owner}/${repo}/releases`, {
-                    headers: {
-                        Accept: 'application/vnd.github.v3+json',
-                        Authorization: `Bearer ${this.config.token}`,
-                    },
-                });
-                const res = yield response.json();
-                console.log('releases:', res);
-            }
-            catch (e) {
-                console.log('releases error:', e);
-            }
-            console.log(`https://api.github.com/repos/${owner}/${repo}/releases/tags/${tag}`);
-            try {
-                const response = yield fetch(`https://api.github.com/repos/${owner}/${repo}/releases/tags/${tag}`, {
-                    headers: {
-                        Accept: 'application/vnd.github.v3+json',
-                        Authorization: `Bearer ${this.config.token}`,
-                    },
-                });
-                const res = yield response.json();
-                console.log('releases:', res);
-            }
-            catch (e) {
-                console.log('releases error:', e);
-            }
             try {
                 (0, core_1.debug)(`Owner: ${owner}, Repo: ${repo}, tag: ${tag}`);
                 const { data: release } = yield this.github.rest.repos.getReleaseByTag({
@@ -10988,9 +10932,8 @@ exports.doInit = void 0;
 const utils_1 = __nccwpck_require__(6548);
 const github_1 = __nccwpck_require__(4128);
 const core_1 = __nccwpck_require__(5681);
-function doInit(env) {
-    const config = (0, utils_1.parseConfig)(env);
-    console.log(config);
+function doInit() {
+    const config = (0, utils_1.parseConfig)();
     const github = (0, github_1.getOctokit)(config.token, {
         timeZone: 'Europe/Amsterdam',
         throttle: {
@@ -11026,8 +10969,7 @@ exports.doInit = doInit;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.parseConfig = void 0;
 const core_1 = __nccwpck_require__(5681);
-function parseConfig(env) {
-    console.log(env, (0, core_1.getInput)('token', { required: true }).split(''));
+function parseConfig() {
     return {
         token: (0, core_1.getInput)('token', { required: true }),
         outdir: (0, core_1.getInput)('outdir') || '.',
@@ -11052,14 +10994,6 @@ module.exports = eval("require")("encoding");
 
 "use strict";
 module.exports = require("assert");
-
-/***/ }),
-
-/***/ 4300:
-/***/ ((module) => {
-
-"use strict";
-module.exports = require("buffer");
 
 /***/ }),
 
@@ -11132,14 +11066,6 @@ module.exports = require("os");
 
 "use strict";
 module.exports = require("path");
-
-/***/ }),
-
-/***/ 7282:
-/***/ ((module) => {
-
-"use strict";
-module.exports = require("process");
 
 /***/ }),
 

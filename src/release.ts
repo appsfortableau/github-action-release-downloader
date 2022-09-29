@@ -40,8 +40,6 @@ class ReleaseApi {
     this.github = github;
     this.config = config;
     this.context = context;
-
-    console.log(this.config);
   }
 
   async getReleaseForTag(
@@ -49,43 +47,6 @@ class ReleaseApi {
     repo: string,
     tag: string
   ): Promise<ARelease | null> {
-    console.log('boe', this.config.token, btoa(this.config.token));
-    console.log(`https://api.github.com/repos/${owner}/${repo}/releases`);
-    try {
-      const response = await fetch(
-        `https://api.github.com/repos/${owner}/${repo}/releases`,
-        {
-          headers: {
-            Accept: 'application/vnd.github.v3+json',
-            Authorization: `Bearer ${this.config.token}`,
-          },
-        }
-      );
-      const res = await response.json();
-      console.log('releases:', res);
-    } catch (e) {
-      console.log('releases error:', e);
-    }
-
-    console.log(
-      `https://api.github.com/repos/${owner}/${repo}/releases/tags/${tag}`
-    );
-    try {
-      const response = await fetch(
-        `https://api.github.com/repos/${owner}/${repo}/releases/tags/${tag}`,
-        {
-          headers: {
-            Accept: 'application/vnd.github.v3+json',
-            Authorization: `Bearer ${this.config.token}`,
-          },
-        }
-      );
-      const res = await response.json();
-      console.log('releases:', res);
-    } catch (e) {
-      console.log('releases error:', e);
-    }
-
     try {
       debug(`Owner: ${owner}, Repo: ${repo}, tag: ${tag}`);
       const { data: release } = await this.github.rest.repos.getReleaseByTag({

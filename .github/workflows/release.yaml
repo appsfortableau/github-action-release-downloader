@@ -5,7 +5,7 @@ on:
     inputs:
       VERSION:
         description: 'Set the proper version name to be used `v1` etc. Defaults: v1'
-        defaults: v1
+        default: v1
 
 jobs:
   start-release:
@@ -15,4 +15,5 @@ jobs:
         uses: appsfortableau/github-action-releaser@v1
         with:
           tag_name: '${{ inputs.VERSION }}'
+          token: '${{ github.token }}'
           move_tag: true

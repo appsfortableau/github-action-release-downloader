@@ -1,16 +1,15 @@
-import { Config, Env, Github, parseConfig } from './utils';
+import { Config, Github, parseConfig } from './utils';
 import { context, getOctokit } from '@actions/github';
 import { OctokitOptions } from '@octokit/core/dist-types/types';
 import { debug, warning } from '@actions/core';
 import { Context } from '@actions/github/lib/context';
 
-export function doInit(env: Env): {
+export function doInit(): {
   config: Config;
   github: Github;
   context: Context;
 } {
-  const config = parseConfig(env);
-  console.log(config);
+  const config = parseConfig();
   const github = getOctokit(config.token, {
     timeZone: 'Europe/Amsterdam',
     throttle: {

@@ -1,13 +1,13 @@
-import { env } from 'process';
 import { exec } from '@actions/exec';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import { debug, error, warning } from '@actions/core';
 import { doInit } from './startup';
 import ReleaseApi from './release';
 import { ReleaseAsset } from './utils';
+import { join } from 'path';
 
 async function run() {
-  const { context, github, config } = doInit(env);
+  const { context, github, config } = doInit();
 
   if (!context.payload?.repository?.full_name) {
     error('Action repository information not found');
@@ -78,14 +78,18 @@ async function run() {
         mkdirSync(config.outdir, { recursive: true });
       }
 
-      writeFileSync(targetFile, Buffer.from(download));
-      debug('Write file to disk before extraction: ' + targetFile);
+      // get current working directory
+      let cwd = process.cwd();
+      debug(`CWD: ${cwd}`);
+      writeFileSync(join(cwd, targetFile), Buffer.from(download));
+      debug('Write file to disk before extraction: ' + join(cwd, targetFile));
 
+      let unzipOpts = ['-o', join(cwd, targetFile)];
+      if (config.outdir !== '.') {
+        unzipOpts = ['-o', '-d', config.outdir, join(cwd, targetFile)];
+      }
 
-      exec('ls -la');
-      exec('ls -la **');
-
-      exec('unzip', ['-o', '-d', config.outdir, targetFile]);
+      await exec('unzip', unzipOpts);
       rmSync(targetFile);
     }
     // when we do not want to extract, but download the zip file into a certain location
@@ -102,8 +106,4 @@ async function run() {
   }
 }
 
-try {
-  run();
-} catch (e) {
-  console.log('error', e);
-}
+run();

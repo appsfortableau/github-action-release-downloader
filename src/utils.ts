@@ -18,8 +18,7 @@ export interface ReleaseAsset {
   url: string;
 }
 
-export function parseConfig(env: Env): Config {
-  console.log(env, getInput('token', { required: true }).split(''))
+export function parseConfig(): Config {
   return {
     token: getInput('token', { required: true }),
     outdir: getInput('outdir') || '.',
