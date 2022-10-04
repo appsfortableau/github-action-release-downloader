@@ -8,6 +8,7 @@ export interface Config {
   token: string;
   outdir: string;
   extract: boolean;
+  failOnWarning: boolean;
 }
 
 export interface ReleaseAsset {
@@ -23,5 +24,6 @@ export function parseConfig(): Config {
     token: getInput('token', { required: true }),
     outdir: getInput('outdir') || '.',
     extract: getBooleanInput('extract') || false,
+    failOnWarning: getBooleanInput('fail-on-warning') || false,
   };
 }

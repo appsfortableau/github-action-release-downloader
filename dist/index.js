@@ -10794,7 +10794,9 @@ function run() {
         const model = new release_1.default(github, config, context);
         const packageJson = JSON.parse((0, fs_1.readFileSync)('./package.json').toString());
         if (!('releases' in packageJson)) {
-            (0, core_1.warning)('Missing attribute in package.json: `release_download`');
+            config.failOnWarning ?
+                (0, core_1.error)('Missing attribute in package.json: `release_download`') :
+                (0, core_1.warning)('Missing attribute in package.json: `release_download`');
             return;
         }
         const cacheRepositories = {};
@@ -10820,7 +10822,9 @@ function run() {
                 }
             }
             if (!asset) {
-                (0, core_1.warning)(`No file found for: ${targetFile} in "${repository}"`);
+                config.failOnWarning ?
+                    (0, core_1.error)(`No file found for: ${targetFile} in "${repository}"`) :
+                    (0, core_1.warning)(`No file found for: ${targetFile} in "${repository}"`);
                 continue;
             }
             const download = (yield model.downloadRelease(owner, workspace, asset.id));
@@ -10939,14 +10943,18 @@ function doInit() {
         throttle: {
             onRateLimit: (retryAfter, options) => {
                 var _a;
-                (0, core_1.warning)(`Request quota exhausted for request ${options.method} ${options.url}`);
+                config.failOnWarning ?
+                    (0, core_1.error)(`Request quota exhausted for request ${options.method} ${options.url}`) :
+                    (0, core_1.warning)(`Request quota exhausted for request ${options.method} ${options.url}`);
                 if (((_a = options.request) === null || _a === void 0 ? void 0 : _a.retryCount) === 0) {
                     (0, core_1.debug)(`Retrying after ${retryAfter} seconds!`);
                     return true;
                 }
             },
             onAbuseLimit: (_, options) => {
-                (0, core_1.warning)(`Abuse detected for request ${options.method} ${options.url}`);
+                config.failOnWarning ?
+                    (0, core_1.error)(`Abuse detected for request ${options.method} ${options.url}`) :
+                    (0, core_1.warning)(`Abuse detected for request ${options.method} ${options.url}`);
             },
         },
     });
@@ -10974,6 +10982,7 @@ function parseConfig() {
         token: (0, core_1.getInput)('token', { required: true }),
         outdir: (0, core_1.getInput)('outdir') || '.',
         extract: (0, core_1.getBooleanInput)('extract') || false,
+        failOnWarning: (0, core_1.getBooleanInput)('fail-on-warning') || false,
     };
 }
 exports.parseConfig = parseConfig;

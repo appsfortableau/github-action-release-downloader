@@ -14,6 +14,9 @@ Extract to zip file into the `outdir` location. E.g. outdir=extensions the zip f
 **`token`**  
 Authorized secret GitHub Personal Access Token. Defaults to `github.token`.
 
+**`fail-on-warning`**  
+Returns a error when a warning occurs instead of a warning.
+
 ## Example usage
 
 Within the `package.json` there should be a section like:

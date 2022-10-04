@@ -1,7 +1,7 @@
 import { Config, Github, parseConfig } from './utils';
 import { context, getOctokit } from '@actions/github';
 import { OctokitOptions } from '@octokit/core/dist-types/types';
-import { debug, warning } from '@actions/core';
+import { debug, error, warning } from '@actions/core';
 import { Context } from '@actions/github/lib/context';
 
 export function doInit(): {
@@ -14,9 +14,9 @@ export function doInit(): {
     timeZone: 'Europe/Amsterdam',
     throttle: {
       onRateLimit: (retryAfter: number, options: OctokitOptions) => {
-        warning(
-          `Request quota exhausted for request ${options.method} ${options.url}`
-        );
+        config.failOnWarning ? 
+          error(`Request quota exhausted for request ${options.method} ${options.url}`) :
+          warning(`Request quota exhausted for request ${options.method} ${options.url}`);
 
         if (options.request?.retryCount === 0) {
           // only retries once
@@ -26,7 +26,9 @@ export function doInit(): {
       },
       onAbuseLimit: (_: number, options: OctokitOptions) => {
         // does not retry, only logs a warning
-        warning(`Abuse detected for request ${options.method} ${options.url}`);
+        config.failOnWarning ? 
+          error(`Abuse detected for request ${options.method} ${options.url}`) :
+          warning(`Abuse detected for request ${options.method} ${options.url}`);
       },
     },
   });
