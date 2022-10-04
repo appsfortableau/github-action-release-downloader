@@ -19,6 +19,10 @@ inputs:
       `github.token`.
     required: false
     default: '${{ github.token }}'
+  fail-on-warning:
+    description: Return error if a warning occurs.
+    required: false
+    default: false
 
 env:
   GITHUB_TOKEN: As provided by Github Actions

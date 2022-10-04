@@ -26,7 +26,9 @@ async function run() {
   // load package.json
   const packageJson = JSON.parse(readFileSync('./package.json').toString());
   if (!('releases' in packageJson)) {
-    warning('Missing attribute in package.json: `release_download`');
+    config.failOnWarning ? 
+      error('Missing attribute in package.json: `release_download`') : 
+      warning('Missing attribute in package.json: `release_download`');
     return;
   }
 
@@ -62,7 +64,9 @@ async function run() {
     }
 
     if (!asset) {
-      warning(`No file found for: ${targetFile} in "${repository}"`);
+      config.failOnWarning ? 
+        error(`No file found for: ${targetFile} in "${repository}"`) :
+        warning(`No file found for: ${targetFile} in "${repository}"`);
       continue;
     }
 
